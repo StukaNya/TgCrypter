@@ -6,6 +6,7 @@ import (
 
 	"github.com/StukaNya/SteamREST/internal/app/httpserver"
 	"github.com/pelletier/go-toml"
+	"github.com/sirupsen/logrus"
 )
 
 var (
@@ -27,10 +28,19 @@ func main() {
 	}
 
 	// Parse TOML into config struct
-	config := httpserver.NewConfig()
-	tomlTree.Unmarshal(&config)
+	config := NewConfig()
+	tomlTree.Unmarshal(config)
 
-	server := httpserver.New(config)
+	// Configure logger
+	logger := logrus.New()
+	level, err := logrus.ParseLevel(config.Logger.LogLevel)
+	if err != nil {
+		log.Fatal(err)
+	}
+	logger.SetLevel(level)
+
+	// Server startup
+	server := httpserver.New(logger, config.ServerConfig)
 	err = server.Start()
 	if err != nil {
 		log.Fatal(err)

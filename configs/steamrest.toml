@@ -1,5 +1,6 @@
-[address]
-BindAddr = ":8080"
-
-[logger]
+[Logger]
 LogLevel = "debug"
+
+[ServerConfig]
+BindAddr = "localhost:8080"
+InfoRoute = "/info"

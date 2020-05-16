@@ -9,16 +9,16 @@ import (
 )
 
 type httpServer struct {
-	config *Config
+	config *ServerConfig
 	logger *logrus.Logger
 	router *mux.Router
 }
 
 // Return server instanse
-func New(config *Config) *httpServer {
+func New(log *logrus.Logger, config *ServerConfig) *httpServer {
 	return &httpServer{
 		config: config,
-		logger: logrus.New(),
+		logger: log,
 		router: mux.NewRouter(),
 	}
 }
@@ -26,36 +26,20 @@ func New(config *Config) *httpServer {
 // Startup func
 func (s *httpServer) Start() error {
 
-	err := s.configureLogger()
-	if err != nil {
-		return err
-	}
-
 	s.configureRouter()
 
-	s.logger.Info("Server startup")
+	s.logger.Info("Server is listening, URL: ", s.config.BindAddr)
 
-	return http.ListenAndServe(s.config.Address.BindAddr, s.router)
-}
-
-// Configure logger level
-func (s *httpServer) configureLogger() error {
-	level, err := logrus.ParseLevel(s.config.Logger.LogLevel)
-	if err != nil {
-		return err
-	}
-
-	s.logger.SetLevel(level)
-
-	return nil
+	return http.ListenAndServe(s.config.BindAddr, s.router)
 }
 
 // Configure router
 func (s *httpServer) configureRouter() {
-	s.router.HandleFunc("/info", s.handleInfo())
+	s.router.HandleFunc(s.config.InfoRoute, s.handleInfo())
 }
 
 func (s *httpServer) handleInfo() http.HandlerFunc {
+	s.logger.Info("Bind handle of ", s.config.InfoRoute)
 	return func(w http.ResponseWriter, r *http.Request) {
 		io.WriteString(w, "DB Info:")
 	}
