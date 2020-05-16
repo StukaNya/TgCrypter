@@ -20,7 +20,7 @@ type Config struct {
 func NewConfig() *Config {
 	return &Config{
 		Address: Address{
-			BindAddr: ":8080",
+			BindAddr: "localhost:8080",
 		},
 		Logger: Logger{
 			LogLevel: "debug",
