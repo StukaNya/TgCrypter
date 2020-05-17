@@ -5,6 +5,7 @@ import (
 	"log"
 
 	"github.com/StukaNya/SteamREST/internal/app/httpserver"
+	"github.com/StukaNya/SteamREST/internal/app/store"
 	"github.com/pelletier/go-toml"
 	"github.com/sirupsen/logrus"
 )
@@ -39,8 +40,15 @@ func main() {
 	}
 	logger.SetLevel(level)
 
+	// Configure DB
+	st := store.New(logger, &config.StoreConfig)
+	err = st.Open()
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	// Server startup
-	server := httpserver.New(logger, config.ServerConfig)
+	server := httpserver.New(logger, &config.ServerConfig)
 	err = server.Start()
 	if err != nil {
 		log.Fatal(err)

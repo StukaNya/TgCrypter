@@ -4,3 +4,6 @@ LogLevel = "debug"
 [ServerConfig]
 BindAddr = "localhost:8080"
 InfoRoute = "/info"
+
+[StoreConfig]
+DatabaseURL = "host=localhost dbname=steamrest_dev sslmode=disable"

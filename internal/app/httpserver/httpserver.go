@@ -8,6 +8,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+// HTTP server object
 type httpServer struct {
 	config *ServerConfig
 	logger *logrus.Logger
@@ -38,6 +39,7 @@ func (s *httpServer) configureRouter() {
 	s.router.HandleFunc(s.config.InfoRoute, s.handleInfo())
 }
 
+// Declare handle function
 func (s *httpServer) handleInfo() http.HandlerFunc {
 	s.logger.Info("Bind handle of ", s.config.InfoRoute)
 	return func(w http.ResponseWriter, r *http.Request) {
