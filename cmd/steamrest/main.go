@@ -4,6 +4,7 @@ import (
 	"flag"
 	"log"
 
+	"github.com/StukaNya/SteamREST/internal/app/controller"
 	"github.com/StukaNya/SteamREST/internal/app/httpserver"
 	"github.com/StukaNya/SteamREST/internal/app/store"
 	"github.com/pelletier/go-toml"
@@ -41,14 +42,17 @@ func main() {
 	logger.SetLevel(level)
 
 	// Configure DB
-	st := store.New(logger, &config.StoreConfig)
+	st := store.NewStore(logger, &config.StoreConfig)
 	err = st.Open()
 	if err != nil {
 		log.Fatal(err)
 	}
 
+	// Configure manage controller
+	ctrl := controller.NewController(logger, &config.ControllerConfig, st)
+
 	// Server startup
-	server := httpserver.New(logger, &config.ServerConfig)
+	server := httpserver.New(logger, &config.ServerConfig, ctrl)
 	err = server.Start()
 	if err != nil {
 		log.Fatal(err)

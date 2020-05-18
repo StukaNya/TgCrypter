@@ -15,7 +15,7 @@ type Store struct {
 }
 
 // Return db store instance
-func New(log *logrus.Logger, config *StoreConfig) *Store {
+func NewStore(log *logrus.Logger, config *StoreConfig) *Store {
 	return &Store{
 		config: config,
 		logger: log,

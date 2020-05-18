@@ -4,6 +4,8 @@ import (
 	"io"
 	"net/http"
 
+	"github.com/StukaNya/SteamREST/internal/app/controller"
+
 	"github.com/gorilla/mux"
 	"github.com/sirupsen/logrus"
 )
@@ -12,14 +14,16 @@ import (
 type httpServer struct {
 	config *ServerConfig
 	logger *logrus.Logger
+	ctrl   *controller.Controller
 	router *mux.Router
 }
 
 // Return server instanse
-func New(log *logrus.Logger, config *ServerConfig) *httpServer {
+func New(log *logrus.Logger, config *ServerConfig, ctrl *controller.Controller) *httpServer {
 	return &httpServer{
 		config: config,
 		logger: log,
+		ctrl:   ctrl,
 		router: mux.NewRouter(),
 	}
 }
@@ -43,6 +47,11 @@ func (s *httpServer) configureRouter() {
 func (s *httpServer) handleInfo() http.HandlerFunc {
 	s.logger.Info("Bind handle of ", s.config.InfoRoute)
 	return func(w http.ResponseWriter, r *http.Request) {
-		io.WriteString(w, "DB Info:")
+		if r.Method != "GET" {
+			http.Error(w, http.StatusText(405), 405)
+			return
+		}
+		// call controller func
+		io.WriteString(w, "DB Info: ")
 	}
 }
