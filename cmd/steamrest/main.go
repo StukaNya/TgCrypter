@@ -49,7 +49,7 @@ func main() {
 	}
 
 	// Configure manage controller
-	ctrl := controller.NewController(logger, &config.ControllerConfig, st)
+	ctrl := controller.NewController(st, logger, &config.ControllerConfig)
 
 	// Server startup
 	server := httpserver.New(logger, &config.ServerConfig, ctrl)

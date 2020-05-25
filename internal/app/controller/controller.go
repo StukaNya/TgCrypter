@@ -1,6 +1,8 @@
 package controller
 
 import (
+	"strconv"
+
 	"github.com/StukaNya/SteamREST/internal/app/store"
 	"github.com/sirupsen/logrus"
 )
@@ -13,16 +15,33 @@ import (
 type Controller struct {
 	config  *ControllerConfig
 	logger  *logrus.Logger
-	dbStore *store.Store
+	dbStore store.Model
 }
 
-// Return controller instance
-func NewController(log *logrus.Logger, config *ControllerConfig, store *store.Store) *Controller {
+// NewController return controller instance
+func NewController(store store.Model, log *logrus.Logger, config *ControllerConfig) *Controller {
 	return &Controller{
 		config:  config,
 		logger:  log,
 		dbStore: store,
 	}
+}
+
+// AppInfo return serialize string info of App
+func (c *Controller) AppInfo(appID int) (string, error) {
+	appInfo, err := c.dbStore.GetAppInfo(appID)
+	if err != nil {
+		return "", err
+	}
+
+	serialInfo := strconv.Itoa(appID) + "." + appInfo.Name
+	c.logger.Info("Get app info from DB: ", serialInfo)
+	return serialInfo, nil
+}
+
+// LoadApps ...
+func (c *Controller) LoadApps() error {
+	return nil
 }
 
 // Получить все игры
