@@ -50,6 +50,10 @@ func main() {
 
 	// Configure manage controller
 	ctrl := controller.NewController(st, logger, &config.ControllerConfig)
+	err = ctrl.LoadAppList()
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	// Server startup
 	server := httpserver.New(logger, &config.ServerConfig, ctrl)

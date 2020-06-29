@@ -3,6 +3,7 @@ package httpserver
 import (
 	"io"
 	"net/http"
+	"strconv"
 
 	"github.com/StukaNya/SteamREST/internal/app/controller"
 
@@ -51,7 +52,19 @@ func (s *httpServer) handleInfo() http.HandlerFunc {
 			http.Error(w, http.StatusText(405), 405)
 			return
 		}
-		// call controller func
-		io.WriteString(w, "DB Info: ")
+		// Get id from mux router
+		vars := mux.Vars(r)
+		id, err := strconv.Atoi(vars["id"])
+		if err != nil {
+			http.Error(w, http.StatusText(400), 400)
+			return
+		}
+		// Call controller func to get app data from DB
+		info, err := s.ctrl.AppInfo(id)
+		if err != nil {
+			http.Error(w, http.StatusText(404), 404)
+			return
+		}
+		io.WriteString(w, info)
 	}
 }

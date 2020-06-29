@@ -1,6 +1,9 @@
 package controller
 
 import (
+	"encoding/json"
+	"io/ioutil"
+	"net/http"
 	"strconv"
 
 	"github.com/StukaNya/SteamREST/internal/app/store"
@@ -16,6 +19,11 @@ type Controller struct {
 	config  *ControllerConfig
 	logger  *logrus.Logger
 	dbStore store.Model
+}
+
+// AppList is JSON format struct
+type AppList struct {
+	Apps []store.AppInfo `json:"apps"`
 }
 
 // NewController return controller instance
@@ -39,12 +47,44 @@ func (c *Controller) AppInfo(appID int) (string, error) {
 	return serialInfo, nil
 }
 
-// LoadApps ...
-func (c *Controller) LoadApps() error {
+// LoadAppList from Steam API
+func (c *Controller) LoadAppList() error {
+	// Get responce from HTTP request
+	resp, err := http.Get(c.config.AppList)
+	if err != nil {
+		c.logger.Info("Error during GET AppList responce from HTTP request")
+		return err
+	}
+	defer resp.Body.Close()
+
+	// Read byte data from responce
+	data, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		c.logger.Info("Error during read data from response")
+		return err
+	}
+
+	// Unmarshal JSON data to AppList Struct
+	list := AppList{}
+	err = json.Unmarshal(data, &list)
+	if err != nil {
+		c.logger.Info("Error during unmarshal JSON data to AppList struct")
+		return err
+	}
+
+	// Insert data to DB
+	for _, app := range list.Apps {
+		err = c.dbStore.InsertAppInfo(&app)
+		if err != nil {
+			c.logger.Info("Error during insert app to db: ", app.Name)
+		}
+	}
+
 	return nil
 }
 
 // Получить все игры
 // https://api.steampowered.com/ISteamApps/GetAppList/v2/?format=json
+// {"applist":{"apps":[{"appid":216938,"name":"Pieterw test app76 ( 216938 )"},{"appid":660010,"name":"test2"},{"appid":660130,"name":"test3"},{"appid":431260,"name":"Cursed"}]}}
 // Получить инфо об игре 57690 = Tropico 4
 // http://store.steampowered.com/api/appdetails?appids=57690&cc=us&l=en
