@@ -6,7 +6,7 @@ BindAddr = "localhost:8080"
 InfoRoute = "/info/{id:[0-9]+}"
 
 [StoreConfig]
-DatabaseURL = "host=localhost dbname=steamrest_dev sslmode=disable"
+DatabaseURL = "user=stuka host=localhost dbname=steamrest_db sslmode=disable"
 
 [ControllerConfig]
 Format = "json"
