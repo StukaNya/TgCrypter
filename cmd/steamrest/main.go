@@ -18,7 +18,7 @@ var (
 
 // TODO: update for Linux
 func init() {
-	flag.StringVar(&configPath, "config-path", "C:\\Users\\whyso\\SteamREST\\configs\\steamrest.toml", "path to config file")
+	flag.StringVar(&configPath, "config-path", "/home/stuka/go/SteamREST/configs/steamrest.toml", "path to config file")
 }
 
 func main() {
