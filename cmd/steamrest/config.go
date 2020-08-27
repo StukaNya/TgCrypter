@@ -3,7 +3,6 @@ package main
 import (
 	"github.com/StukaNya/SteamREST/internal/app/controller"
 	"github.com/StukaNya/SteamREST/internal/app/httpserver"
-	"github.com/StukaNya/SteamREST/internal/app/store"
 )
 
 // Logger config
@@ -11,11 +10,16 @@ type Logger struct {
 	LogLevel string
 }
 
+// Database config
+type DatabaseConfig struct {
+	DatabaseURL string
+}
+
 // Global config
 type Config struct {
 	Logger           Logger
+	DbConfig         DatabaseConfig
 	ServerConfig     httpserver.ServerConfig
-	StoreConfig      store.StoreConfig
 	ControllerConfig controller.ControllerConfig
 }
 
@@ -25,8 +29,10 @@ func NewConfig() *Config {
 		Logger: Logger{
 			LogLevel: "debug",
 		},
+		DbConfig: DatabaseConfig{
+			DatabaseURL: "",
+		},
 		ServerConfig:     *httpserver.NewConfig(),
-		StoreConfig:      *store.NewConfig(),
 		ControllerConfig: *controller.NewConfig(),
 	}
 }

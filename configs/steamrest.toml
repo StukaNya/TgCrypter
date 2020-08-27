@@ -1,12 +1,12 @@
 [Logger]
 LogLevel = "debug"
 
+[DatabaseConfig]
+DatabaseURL = "host=localhost dbname=steamrest_dev sslmode=disable"
+
 [ServerConfig]
 BindAddr = "localhost:8080"
 InfoRoute = "/info/{id:[0-9]+}"
-
-[StoreConfig]
-DatabaseURL = "host=localhost dbname=steamrest_dev sslmode=disable"
 
 [ControllerConfig]
 Format = "json"

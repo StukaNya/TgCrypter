@@ -1,6 +1,7 @@
 package main
 
 import (
+	"database/sql"
 	"flag"
 	"log"
 
@@ -17,7 +18,7 @@ var (
 
 // TODO: update for Linux
 func init() {
-	flag.StringVar(&configPath, "config-path", "C:\\pr\\SteamREST\\configs\\steamrest.toml", "path to config file")
+	flag.StringVar(&configPath, "config-path", "C:\\Users\\whyso\\SteamREST\\configs\\steamrest.toml", "path to config file")
 }
 
 func main() {
@@ -41,12 +42,15 @@ func main() {
 	}
 	logger.SetLevel(level)
 
-	// Configure DB
-	st := store.NewStore(logger, &config.StoreConfig)
-	err = st.Open()
+	// Configure DB and store layer
+	dbURL := config.DbConfig.DatabaseURL
+	db, err := newDB(dbURL)
 	if err != nil {
 		log.Fatal(err)
 	}
+	defer db.Close()
+
+	st := store.NewStore(logger, db)
 
 	// Configure manage controller
 	ctrl := controller.NewController(st, logger, &config.ControllerConfig)
@@ -61,4 +65,19 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+}
+
+// Open database
+func newDB(dbURL string) (*sql.DB, error) {
+	db, err := sql.Open("postgres", dbURL)
+	if err != nil {
+		return nil, err
+	}
+
+	err = db.Ping()
+	if err != nil {
+		return db, err
+	}
+
+	return db, nil
 }

@@ -42,7 +42,7 @@ func (c *Controller) AppInfo(appID int) (string, error) {
 		return "", err
 	}
 
-	serialInfo := strconv.Itoa(appID) + "." + appInfo.Name
+	serialInfo := strconv.Itoa(appInfo.AppID) + "." + appInfo.Name
 	c.logger.Info("Get app info from DB: ", serialInfo)
 	return serialInfo, nil
 }

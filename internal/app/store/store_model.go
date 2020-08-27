@@ -1,5 +1,17 @@
 package store
 
+import (
+	"database/sql"
+
+	"github.com/sirupsen/logrus"
+)
+
+// Store app info object
+type Store struct {
+	logger *logrus.Logger
+	db     *sql.DB
+}
+
 // Model database access interface
 type Model interface {
 	GetAppInfo(appID int) (*AppInfo, error)
@@ -10,6 +22,14 @@ type Model interface {
 type AppInfo struct {
 	AppID int    `json:"appid"`
 	Name  string `json:"name"`
+}
+
+// Return db store instance
+func NewStore(log *logrus.Logger, db *sql.DB) *Store {
+	return &Store{
+		logger: log,
+		db:     db,
+	}
 }
 
 // GetAppInfo select info of app with current ID from DB
