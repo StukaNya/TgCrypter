@@ -1,0 +1,14 @@
+logger:
+  format: "text"
+  log_level: "debug"
+
+database:
+  database_url: "host=localhost dbname=questhelp_dev sslmode=disable"
+
+telegram:
+  bot_token: ""
+
+controller:
+  format: "json"
+  app_list: ""
+  app_details: ""

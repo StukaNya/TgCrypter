@@ -5,10 +5,10 @@ import (
 	"flag"
 	"log"
 
-	"github.com/StukaNya/SteamREST/internal/app/controller"
-	"github.com/StukaNya/SteamREST/internal/app/httpserver"
-	"github.com/StukaNya/SteamREST/internal/app/store"
-	"github.com/pelletier/go-toml"
+	httpserver "github.com/StukaNya/QuestHelper/http-server"
+	controller "github.com/StukaNya/QuestHelper/model/controller"
+	store "github.com/StukaNya/QuestHelper/storage"
+
 	"github.com/sirupsen/logrus"
 )
 
@@ -18,21 +18,15 @@ var (
 
 // TODO: update for Linux
 func init() {
-	flag.StringVar(&configPath, "config-path", "/home/stuka/go/SteamREST/configs/steamrest.toml", "path to config file")
+	flag.StringVar(&configPath, "config-path", "./config.yaml", "path to config file")
 }
 
 func main() {
-	flag.Parse()
-
-	// Load TOML file
-	tomlTree, err := toml.LoadFile(configPath)
+	// Load config from YAML file
+	config, err := NewConfig()
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	// Parse TOML into config struct
-	config := NewConfig()
-	tomlTree.Unmarshal(config)
 
 	// Configure logger
 	logger := logrus.New()

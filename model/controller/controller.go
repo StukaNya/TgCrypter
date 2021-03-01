@@ -6,7 +6,6 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/StukaNya/SteamREST/internal/app/store"
 	"github.com/sirupsen/logrus"
 )
 
