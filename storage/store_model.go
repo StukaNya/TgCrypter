@@ -1,6 +1,7 @@
 package store
 
 import (
+	"context"
 	"database/sql"
 
 	"github.com/sirupsen/logrus"
@@ -14,17 +15,16 @@ type Store struct {
 
 // Model database access interface
 type Model interface {
-	GetAppInfo(appID int) (*AppInfo, error)
-	InsertAppInfo(info *AppInfo) error
+	InitTable(ctx context.Context) error
+	GetAppInfo(ctx context.Context, appID int) (*AppInfo, error)
+	InsertAppInfo(ctx context.Context, info *AppInfo) error
 }
 
-// AppInfo stores DB row of this app
 type AppInfo struct {
 	AppID int    `json:"appid"`
 	Name  string `json:"name"`
 }
 
-// Return db store instance
 func NewStore(log *logrus.Logger, db *sql.DB) *Store {
 	return &Store{
 		logger: log,
@@ -32,9 +32,19 @@ func NewStore(log *logrus.Logger, db *sql.DB) *Store {
 	}
 }
 
-// GetAppInfo select info of app with current ID from DB
-func (s *Store) GetAppInfo(appID int) (*AppInfo, error) {
-	row, err := s.db.Query("SELECT app_id, app_name FROM apps WHERE app_id =?", appID)
+func (s *Store) InitTable(ctx context.Context) error {
+	const query = "CREATE TABLE apps (app_id int PRIMARY KEY, app_name text NOT NULL);"
+	_, err := s.db.ExecContext(ctx, query)
+	if err != nil {
+		s.logger.Info("Failed to create table on DB")
+		return err
+	}
+
+	return nil
+}
+
+func (s *Store) GetAppInfo(ctx context.Context, appID int) (*AppInfo, error) {
+	row, err := s.db.QueryContext(ctx, "SELECT app_id, app_name FROM apps WHERE app_id =?", appID)
 	if err != nil {
 		s.logger.Info("Failed to SELECT info from DB")
 		return nil, err
@@ -51,9 +61,8 @@ func (s *Store) GetAppInfo(appID int) (*AppInfo, error) {
 	return info, nil
 }
 
-// InsertAppInfo insert info of app to DB
-func (s *Store) InsertAppInfo(info *AppInfo) error {
-	_, err := s.db.Exec("INSERT INTO apps (app_id, app_name) VALUES ($1, $2)", info.AppID, info.Name)
+func (s *Store) InsertAppInfo(ctx context.Context, info *AppInfo) error {
+	_, err := s.db.ExecContext(ctx, "INSERT INTO apps (app_id, app_name) VALUES ($1, $2)", info.AppID, info.Name)
 	if err != nil {
 		s.logger.Info("Failed to INSERT info to DB")
 		return err

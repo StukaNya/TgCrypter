@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"database/sql"
 	"flag"
 	"log"
@@ -22,6 +23,10 @@ func init() {
 }
 
 func main() {
+	// Init context
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
 	// Load config from YAML file
 	config, err := NewConfig()
 	if err != nil {
@@ -45,6 +50,10 @@ func main() {
 	defer db.Close()
 
 	st := store.NewStore(logger, db)
+	err = st.InitTable(ctx)
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	// Configure manage controller
 	ctrl := controller.NewController(st, logger, &config.ControllerConfig)

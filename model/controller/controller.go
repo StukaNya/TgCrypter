@@ -81,9 +81,3 @@ func (c *Controller) LoadAppList() error {
 
 	return nil
 }
-
-// Получить все игры
-// https://api.steampowered.com/ISteamApps/GetAppList/v2/?format=json
-// {"applist":{"apps":[{"appid":216938,"name":"Pieterw test app76 ( 216938 )"},{"appid":660010,"name":"test2"},{"appid":660130,"name":"test3"},{"appid":431260,"name":"Cursed"}]}}
-// Получить инфо об игре 57690 = Tropico 4
-// http://store.steampowered.com/api/appdetails?appids=57690&cc=us&l=en
