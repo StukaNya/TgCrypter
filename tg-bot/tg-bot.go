@@ -9,19 +9,19 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-type TgSessionProvider interface {
+type SessionProvider interface {
 	RegisterSession(ctx context.Context, userName string, chatID int64) (uuid.UUID, error)
-	RegisterText(ctx context.Context, sessionID uuid.UUID, text string) error
+	RegisterPinCode(ctx context.Context, sessionID uuid.UUID, pin string) error
 }
 
 type TgBot struct {
 	logger   *logrus.Logger
 	api      *tgbotapi.BotAPI
 	config   tgbotapi.UpdateConfig
-	provider TgSessionProvider
+	provider SessionProvider
 }
 
-func NewTgBot(log *logrus.Logger, token string, provider TgSessionProvider) (*TgBot, error) {
+func NewTgBot(log *logrus.Logger, token string, provider SessionProvider) (*TgBot, error) {
 	bot, err := tgbotapi.NewBotAPI(token)
 	if err != nil {
 		return nil, fmt.Errorf("unable to initialize Telegram bot API: %v", err)
@@ -48,8 +48,8 @@ func (bot *TgBot) Serve(ctx context.Context) error {
 		}
 		bot.logger.Info("Register session, ID: ", sessionID)
 
-		if err := bot.provider.RegisterText(ctx, sessionID, upd.Message.Text); err != nil {
-			return fmt.Errorf("failed text registration: %v", err)
+		if err := bot.provider.RegisterPinCode(ctx, sessionID, upd.Message.Text); err != nil {
+			return fmt.Errorf("failed pin code registration: %v", err)
 		}
 	}
 	return nil
