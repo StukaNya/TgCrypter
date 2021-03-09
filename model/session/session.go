@@ -19,8 +19,9 @@ type SessionInfo struct {
 }
 
 type SessionRegistry struct {
-	log  *logrus.Logger
-	repo SessionRepository
+	log         *logrus.Logger
+	sessionRepo SessionRepository
+	pinCode     PinCodeStorer
 }
 
 func (s *SessionRegistry) RegisterSession(ctx context.Context, userName string, chatID int64) (uuid.UUID, error) {
@@ -31,7 +32,7 @@ func (s *SessionRegistry) RegisterSession(ctx context.Context, userName string, 
 		RegisterTime: time.Now(),
 	}
 
-	if err := s.repo.StoreSession(ctx, sessionInfo); err != nil {
+	if err := s.sessionRepo.StoreSession(ctx, sessionInfo); err != nil {
 		return uuid.Nil, fmt.Errorf("unable to store session info: %v", err)
 	}
 	return sessionInfo.ID, nil
@@ -42,13 +43,25 @@ func (s *SessionRegistry) RegisterPinCode(ctx context.Context, sessionID uuid.UU
 	shaHash.Write([]byte(pin))
 	s.log.Info("Register new pin code hash: ", shaHash.Sum(nil))
 
-	if err := s.repo.StorePinHash(ctx, sessionID, shaHash); err != nil {
+	if err := s.pinCode.StorePinHash(ctx, sessionID, shaHash); err != nil {
 		return fmt.Errorf("unable to store pin code: %v", err)
 	}
 	return nil
 }
 
 type SessionRepository interface {
+	SessionStorer
+	SessionFetcher
+}
+
+type SessionStorer interface {
 	StoreSession(ctx context.Context, info *SessionInfo) error
+}
+
+type SessionFetcher interface {
+	FetchSession(ctx context.Context, info *SessionInfo) error
+}
+
+type PinCodeStorer interface {
 	StorePinHash(ctx context.Context, sessionID uuid.UUID, pin hash.Hash) error
 }
