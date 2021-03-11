@@ -13,7 +13,7 @@ type PinCodeStorage struct {
 func (s *PinCodeStorage) InitTable(ctx context.Context) error {
 	const query = `CREATE TABLE pin_code (
 			id			uuid 	PRIMARY KEY DEFAULT uuid_generate_v4(),
-			session_id  int 	NOT NULL REFERENCES session(id),
+			user_id  	int 	NOT NULL REFERENCES user(id),
 			hash 		text 	NOT NULL,
 		);`
 	_, err := s.db.ExecContext(ctx, query)
@@ -28,7 +28,7 @@ func (s *PinCodeStorage) StorePinHash(ctx context.Context, sessionID int, pinHas
 	const query = "INSERT INTO pin_code (session_id, hash) VALUES ($1, $2)"
 	_, err := s.db.ExecContext(ctx, query, sessionID, pinHash)
 	if err != nil {
-		return fmt.Errorf("failed to store new pin code", err)
+		return fmt.Errorf("failed to store new pin code: %v", err)
 	}
 
 	return nil
