@@ -6,21 +6,25 @@ import (
 	"fmt"
 
 	uuid "github.com/satori/go.uuid"
-	"github.com/sirupsen/logrus"
 )
 
-type Encrypter struct {
-	log     *logrus.Logger
-	crypt   CryptoStorer
-	pinCode PinCodeFetcher
+type Crypter struct {
+	cryptRepo CryptoStorer
+	pinRepo   PinCodeFetcher
 }
 
-func (c *Encrypter) RegisterData(ctx context.Context, sessionID uuid.UUID, rawData []byte) error {
+type EncryptFile struct {
+	Name   string
+	Data   []byte
+	UserID uuid.UUID
+}
+
+func (c *Crypter) RegisterFile(ctx context.Context, userID uuid.UUID, fileName string, rawData []byte) error {
 	if len(rawData) == 0 {
 		return fmt.Errorf("empty encrypted data")
 	}
 
-	pin, err := c.pinCode.FetchPinHash(ctx, sessionID)
+	pin, err := c.pinRepo.FetchPinHash(ctx, userID)
 	if err != nil {
 		return fmt.Errorf("unable to fetch pin code: %v", err)
 	}
@@ -30,11 +34,14 @@ func (c *Encrypter) RegisterData(ctx context.Context, sessionID uuid.UUID, rawDa
 		return fmt.Errorf("unable to create AES cipher: %v", err)
 	}
 
-	var cryptData = make([]byte, len(rawData))
-	cipher.Encrypt(cryptData, rawData)
-	c.log.Info("Encrypt new data: ", cryptData)
+	encryptFile := EncryptFile{
+		Name:   fileName,
+		Data:   make([]byte, len(rawData)),
+		UserID: userID,
+	}
+	cipher.Encrypt(encryptFile.Data, rawData)
 
-	if err := c.crypt.StoreEncryptData(ctx, sessionID, cryptData); err != nil {
+	if err := c.cryptRepo.StoreEncryptData(ctx, &encryptFile); err != nil {
 		return fmt.Errorf("unable to store encrypt data: %v", err)
 	}
 
@@ -42,7 +49,7 @@ func (c *Encrypter) RegisterData(ctx context.Context, sessionID uuid.UUID, rawDa
 }
 
 type CryptoStorer interface {
-	StoreEncryptData(ctx context.Context, sessionID uuid.UUID, data []byte) error
+	StoreEncryptData(ctx context.Context, file *EncryptFile) error
 }
 
 type PinCodeFetcher interface {
