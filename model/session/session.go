@@ -4,7 +4,6 @@ import (
 	"context"
 	"crypto/sha256"
 	"fmt"
-	"hash"
 	"time"
 
 	uuid "github.com/satori/go.uuid"
@@ -42,7 +41,7 @@ func (s *SessionRegistry) RegisterPinCode(ctx context.Context, userID uuid.UUID,
 	shaHash.Write([]byte(pin))
 	s.log.Info("Register new pin code hash: ", shaHash.Sum(nil))
 
-	if err := s.pinCode.StorePinHash(ctx, userID, shaHash); err != nil {
+	if err := s.pinCode.StorePinHash(ctx, userID, shaHash.Sum(nil)); err != nil {
 		return fmt.Errorf("unable to store pin code: %v", err)
 	}
 	return nil
@@ -62,5 +61,5 @@ type UserFetcher interface {
 }
 
 type PinCodeStorer interface {
-	StorePinHash(ctx context.Context, userID uuid.UUID, pin hash.Hash) error
+	StorePinHash(ctx context.Context, userID uuid.UUID, pin []byte) error
 }

@@ -53,5 +53,5 @@ type CryptoStorer interface {
 }
 
 type PinCodeFetcher interface {
-	FetchPinHash(ctx context.Context, sessionID uuid.UUID) ([]byte, error)
+	FetchPinHash(ctx context.Context, userID uuid.UUID) ([]byte, error)
 }
