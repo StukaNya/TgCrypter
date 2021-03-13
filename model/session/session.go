@@ -11,57 +11,56 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-type SessionInfo struct {
-	ID           uuid.UUID
-	UserName     string
+type UserInfo struct {
+	Name         string
 	ChatID       int64
-	RegisterTime time.Time
+	RegisteredAt time.Time
 }
 
 type SessionRegistry struct {
-	log         *logrus.Logger
-	sessionRepo SessionRepository
-	pinCode     PinCodeStorer
+	log      *logrus.Logger
+	userRepo UserRepository
+	pinCode  PinCodeStorer
 }
 
 func (s *SessionRegistry) RegisterSession(ctx context.Context, userName string, chatID int64) (uuid.UUID, error) {
-	sessionInfo := &SessionInfo{
-		ID:           uuid.NewV4(),
-		UserName:     userName,
+	userInfo := &UserInfo{
+		Name:         userName,
 		ChatID:       chatID,
-		RegisterTime: time.Now(),
+		RegisteredAt: time.Now(),
 	}
 
-	if err := s.sessionRepo.StoreSession(ctx, sessionInfo); err != nil {
+	userID, err := s.userRepo.RegisterUser(ctx, userInfo)
+	if err != nil {
 		return uuid.Nil, fmt.Errorf("unable to store session info: %v", err)
 	}
-	return sessionInfo.ID, nil
+	return userID, nil
 }
 
-func (s *SessionRegistry) RegisterPinCode(ctx context.Context, sessionID uuid.UUID, pin string) error {
+func (s *SessionRegistry) RegisterPinCode(ctx context.Context, userID uuid.UUID, pin string) error {
 	shaHash := sha256.New()
 	shaHash.Write([]byte(pin))
 	s.log.Info("Register new pin code hash: ", shaHash.Sum(nil))
 
-	if err := s.pinCode.StorePinHash(ctx, sessionID, shaHash); err != nil {
+	if err := s.pinCode.StorePinHash(ctx, userID, shaHash); err != nil {
 		return fmt.Errorf("unable to store pin code: %v", err)
 	}
 	return nil
 }
 
-type SessionRepository interface {
-	SessionStorer
-	SessionFetcher
+type UserRepository interface {
+	UserRegistrar
+	UserFetcher
 }
 
-type SessionStorer interface {
-	StoreSession(ctx context.Context, info *SessionInfo) error
+type UserRegistrar interface {
+	RegisterUser(ctx context.Context, info *UserInfo) (uuid.UUID, error)
 }
 
-type SessionFetcher interface {
-	FetchSession(ctx context.Context, info *SessionInfo) error
+type UserFetcher interface {
+	FetchUser(ctx context.Context, userID uuid.UUID) (*UserInfo, error)
 }
 
 type PinCodeStorer interface {
-	StorePinHash(ctx context.Context, sessionID uuid.UUID, pin hash.Hash) error
+	StorePinHash(ctx context.Context, userID uuid.UUID, pin hash.Hash) error
 }
