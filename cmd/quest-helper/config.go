@@ -4,8 +4,8 @@ import (
 	"flag"
 	"os"
 
-	httpserver "github.com/StukaNya/QuestHelper/http-server"
-	controller "github.com/StukaNya/QuestHelper/model/controller"
+	httpserver "github.com/StukaNya/TgCrypter/http-server"
+	controller "github.com/StukaNya/TgCrypter/model/controller"
 	"gopkg.in/yaml.v3"
 )
 

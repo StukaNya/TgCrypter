@@ -3,7 +3,7 @@ package controller
 import (
 	"testing"
 
-	"github.com/StukaNya/SteamREST/internal/app/store"
+	"github.com/StukaNya/TgCrypter/internal/app/store"
 	"github.com/sirupsen/logrus"
 )
 

@@ -6,9 +6,9 @@ import (
 	"flag"
 	"log"
 
-	httpserver "github.com/StukaNya/QuestHelper/http-server"
-	controller "github.com/StukaNya/QuestHelper/model/controller"
-	store "github.com/StukaNya/QuestHelper/storage"
+	httpserver "github.com/StukaNya/TgCrypter/http-server"
+	controller "github.com/StukaNya/TgCrypter/model/controller"
+	store "github.com/StukaNya/TgCrypter/storage"
 
 	"github.com/sirupsen/logrus"
 )

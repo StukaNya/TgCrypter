@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/StukaNya/SteamREST/internal/app/controller"
+	"github.com/StukaNya/TgCrypter/internal/app/controller"
 
 	"github.com/gorilla/mux"
 	"github.com/sirupsen/logrus"

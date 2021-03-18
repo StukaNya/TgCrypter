@@ -1,5 +1,5 @@
 .PHONY: build
 build:
-	go build -v ./cmd/steamrest
+	go build -v ./cmd/TgCrypter
 
 .DEFAULT_GOAL := build

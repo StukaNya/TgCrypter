@@ -1,4 +1,4 @@
-module github.com/StukaNya/SteamREST
+module github.com/StukaNya/TgCrypter
 
 go 1.14
 

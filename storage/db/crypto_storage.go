@@ -5,7 +5,7 @@ import (
 	"database/sql"
 	"fmt"
 
-	"github.com/StukaNya/SteamREST/model/crypter"
+	"github.com/StukaNya/TgCrypter/model/crypter"
 )
 
 var (

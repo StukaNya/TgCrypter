@@ -5,8 +5,8 @@ import (
 	"database/sql"
 	"fmt"
 
-	"github.com/StukaNya/SteamREST/model/crypter"
-	"github.com/StukaNya/SteamREST/model/session"
+	"github.com/StukaNya/TgCrypter/model/crypter"
+	"github.com/StukaNya/TgCrypter/model/session"
 	uuid "github.com/satori/go.uuid"
 )
 
