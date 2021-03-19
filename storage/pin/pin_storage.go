@@ -19,6 +19,10 @@ type PinCodeStorage struct {
 	db *sql.DB
 }
 
+func NewPinCodeStorage(db *sql.DB) *PinCodeStorage {
+	return &PinCodeStorage{db: db}
+}
+
 func (s *PinCodeStorage) InitTable(ctx context.Context) error {
 	const query = `CREATE TABLE pin_code (
 			id			uuid 	PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -34,7 +38,7 @@ func (s *PinCodeStorage) InitTable(ctx context.Context) error {
 }
 
 func (s *PinCodeStorage) StorePinHash(ctx context.Context, userID uuid.UUID, pinHash []byte) error {
-	const query = "INSERT INTO pin_code (session_id, hash) VALUES ($1, $2)"
+	const query = "INSERT INTO pin_code (user_id, hash) VALUES ($1, $2)"
 	_, err := s.db.ExecContext(ctx, query, userID, pinHash)
 	if err != nil {
 		return fmt.Errorf("failed to store new pin code: %v", err)
@@ -44,7 +48,7 @@ func (s *PinCodeStorage) StorePinHash(ctx context.Context, userID uuid.UUID, pin
 }
 
 func (s *PinCodeStorage) FetchPinHash(ctx context.Context, userID uuid.UUID) ([]byte, error) {
-	const query = "SELECT hash FROM pin_code WHERE session_id=?"
+	const query = "SELECT hash FROM pin_code WHERE user_id=?"
 	row, err := s.db.QueryContext(ctx, query, userID)
 	if err != nil {
 		return nil, fmt.Errorf("unable to select pin code hash from db: %v", err)
