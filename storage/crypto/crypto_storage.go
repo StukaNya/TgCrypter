@@ -16,7 +16,7 @@ type CryptoStorage struct {
 	db *sql.DB
 }
 
-func NewCryptoStorer(db *sql.DB) *CryptoStorage {
+func NewCryptoStorage(db *sql.DB) *CryptoStorage {
 	return &CryptoStorage{
 		db: db,
 	}

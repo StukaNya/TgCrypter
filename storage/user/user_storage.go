@@ -10,14 +10,20 @@ import (
 )
 
 var (
-	_ session.UserRepository = (*UserStotage)(nil)
+	_ session.UserRepository = (*UserStorage)(nil)
 )
 
-type UserStotage struct {
+type UserStorage struct {
 	db *sql.DB
 }
 
-func (s *UserStotage) InitTable(ctx context.Context) error {
+func NewUserStorage(db *sql.DB) *UserStorage {
+	return &UserStorage{
+		db: db,
+	}
+}
+
+func (s *UserStorage) InitTable(ctx context.Context) error {
 	const query = `CREATE TABLE user (
 			id			uuid 	PRIMARY KEY DEFAULT uuid_generate_v4(),
 			chat_id		int,
@@ -33,7 +39,7 @@ func (s *UserStotage) InitTable(ctx context.Context) error {
 	return nil
 }
 
-func (s *UserStotage) RegisterUser(ctx context.Context, info *session.UserInfo) (uuid.UUID, error) {
+func (s *UserStorage) RegisterUser(ctx context.Context, info *session.UserInfo) (uuid.UUID, error) {
 	userID := uuid.NewV4()
 	const query = "INSERT INTO user (id, chat_id, name, created_at) VALUES ($1, $2, $3)"
 	_, err := s.db.ExecContext(ctx, query, userID, info.ChatID, info.Name, info.RegisteredAt)
@@ -44,7 +50,7 @@ func (s *UserStotage) RegisterUser(ctx context.Context, info *session.UserInfo) 
 	return userID, nil
 }
 
-func (s *UserStotage) FetchUser(ctx context.Context, userID uuid.UUID) (*session.UserInfo, error) {
+func (s *UserStorage) FetchUser(ctx context.Context, userID uuid.UUID) (*session.UserInfo, error) {
 	const query = "SELECT chat_id, name, created_at FROM user WHERE id=?"
 	row, err := s.db.QueryContext(ctx, query, userID)
 	if err != nil {
