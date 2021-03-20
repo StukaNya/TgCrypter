@@ -4,8 +4,7 @@ import (
 	"flag"
 	"os"
 
-	httpserver "github.com/StukaNya/TgCrypter/http-server"
-	controller "github.com/StukaNya/TgCrypter/model/controller"
+	"github.com/StukaNya/TgCrypter/api"
 	"gopkg.in/yaml.v3"
 )
 
@@ -23,10 +22,9 @@ type DatabaseConfig struct {
 }
 
 type Config struct {
-	Logger           Logger
-	DbConfig         DatabaseConfig
-	ServerConfig     httpserver.ServerConfig
-	ControllerConfig controller.ControllerConfig
+	Logger       Logger
+	DbConfig     DatabaseConfig
+	ServerConfig api.ServerConfig
 }
 
 func NewConfig() (*Config, error) {

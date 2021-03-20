@@ -6,8 +6,8 @@ import (
 	"flag"
 	"log"
 
-	httpserver "github.com/StukaNya/TgCrypter/http-server"
-	controller "github.com/StukaNya/TgCrypter/model/controller"
+	"github.com/StukaNya/TgCrypter/api"
+	store "github.com/StukaNya/TgCrypter/storage/user"
 
 	"github.com/sirupsen/logrus"
 )
@@ -48,21 +48,15 @@ func main() {
 	}
 	defer db.Close()
 
-	st := store.NewStore(logger, db)
-	err = st.InitTable(ctx)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	// Configure manage controller
-	ctrl := controller.NewController(st, logger, &config.ControllerConfig)
-	err = ctrl.LoadAppList()
+	// User storage
+	userSt := store.NewUserStorage(db)
+	err = userSt.InitTable(ctx)
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	// Server startup
-	server := httpserver.New(logger, &config.ServerConfig, ctrl)
+	server := api.NewAPIServer(logger, &config.ServerConfig, userSt)
 	err = server.Start()
 	if err != nil {
 		log.Fatal(err)

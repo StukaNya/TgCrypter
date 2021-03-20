@@ -1,4 +1,4 @@
-package httpserver
+package api
 
 // API server config
 type ServerConfig struct {
