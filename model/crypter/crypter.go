@@ -8,15 +8,22 @@ import (
 	uuid "github.com/satori/go.uuid"
 )
 
+type EncryptFile struct {
+	Name   string
+	Data   []byte
+	UserID uuid.UUID
+}
+
 type Crypter struct {
 	cryptRepo CryptoStorer
 	pinRepo   PinCodeFetcher
 }
 
-type EncryptFile struct {
-	Name   string
-	Data   []byte
-	UserID uuid.UUID
+func NewCrypter(crypt CryptoStorer, pin PinCodeFetcher) *Crypter {
+	return &Crypter{
+		cryptRepo: crypt,
+		pinRepo:   pin,
+	}
 }
 
 func (c *Crypter) RegisterFile(ctx context.Context, userID uuid.UUID, fileName string, rawData []byte) error {

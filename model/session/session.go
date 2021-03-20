@@ -17,9 +17,15 @@ type UserInfo struct {
 }
 
 type SessionRegistry struct {
-	log      *logrus.Logger
 	userRepo UserRepository
-	pinCode  PinCodeStorer
+	pinRepo  PinCodeStorer
+}
+
+func NewSessionRegistry(log *logrus.Logger, user UserRepository, pin PinCodeStorer) *SessionRegistry {
+	return &SessionRegistry{
+		userRepo: user,
+		pinRepo:  pin,
+	}
 }
 
 func (s *SessionRegistry) RegisterSession(ctx context.Context, userName string, chatID int64) (uuid.UUID, error) {
@@ -39,9 +45,8 @@ func (s *SessionRegistry) RegisterSession(ctx context.Context, userName string, 
 func (s *SessionRegistry) RegisterPinCode(ctx context.Context, userID uuid.UUID, pin string) error {
 	shaHash := sha256.New()
 	shaHash.Write([]byte(pin))
-	s.log.Info("Register new pin code hash: ", shaHash.Sum(nil))
 
-	if err := s.pinCode.StorePinHash(ctx, userID, shaHash.Sum(nil)); err != nil {
+	if err := s.pinRepo.StorePinHash(ctx, userID, shaHash.Sum(nil)); err != nil {
 		return fmt.Errorf("unable to store pin code: %v", err)
 	}
 	return nil
