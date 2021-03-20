@@ -1,6 +1,6 @@
 package httpserver
 
-// HTTP config
+// API server config
 type ServerConfig struct {
 	BindAddr  string
 	InfoRoute string
