@@ -3,12 +3,11 @@ logger:
   log_level: "debug"
 
 database:
-  database_url: "host=localhost dbname=questhelp_dev sslmode=disable"
+  database_url: "host=localhost port=5432 user=tg_crypter password=tg_crypter dbname=tg_crypter sslmode=disable"
 
-telegram:
+telegram_bot:
   bot_token: ""
 
-controller:
-  format: "json"
-  app_list: ""
-  app_details: ""
+api_server:
+  bind_addr: ":8080"
+  schema_route: "/"

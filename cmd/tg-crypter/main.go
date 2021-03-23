@@ -12,6 +12,7 @@ import (
 	"github.com/StukaNya/TgCrypter/api"
 	store "github.com/StukaNya/TgCrypter/storage/user"
 
+	_ "github.com/lib/pq"
 	"github.com/sirupsen/logrus"
 )
 
@@ -19,9 +20,8 @@ var (
 	configPath string
 )
 
-// TODO: update for Linux
 func init() {
-	flag.StringVar(&configPath, "config-path", "./config.yaml", "path to config file")
+	flag.StringVar(&configPath, "config-path", "./config.yml", "path to config file")
 }
 
 func main() {
@@ -40,7 +40,8 @@ func main() {
 	}()
 
 	// Load config from YAML file
-	config, err := NewConfig()
+	config := NewConfig()
+	err := config.Parse()
 	if err != nil {
 		log.Fatal(err)
 	}

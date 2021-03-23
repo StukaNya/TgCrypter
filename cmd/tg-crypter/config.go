@@ -22,25 +22,30 @@ type DatabaseConfig struct {
 }
 
 type Config struct {
-	Logger       Logger
-	DbConfig     DatabaseConfig
-	ServerConfig api.ServerConfig
+	Logger       Logger           `yaml:"logger"`
+	DbConfig     DatabaseConfig   `yaml:"database"`
+	ServerConfig api.ServerConfig `yaml:"api_server"`
 }
 
-func NewConfig() (*Config, error) {
+func NewConfig() *Config {
+	return &Config{
+		ServerConfig: api.ServerConfig{},
+	}
+}
+
+func (cfg *Config) Parse() error {
 	flag.Parse()
-	cfg, err := os.Open(configPath)
+	cfgFile, err := os.Open(configPath)
 	if err != nil {
-		cfg, err = os.Open(localConfigPath)
+		cfgFile, err = os.Open(localConfigPath)
 		if err != nil {
-			return nil, err
+			return err
 		}
 	}
 
-	config := &Config{}
-	if err = yaml.NewDecoder(cfg).Decode(config); err != nil {
-		return nil, err
+	if err = yaml.NewDecoder(cfgFile).Decode(cfg); err != nil {
+		return err
 	}
 
-	return config, nil
+	return nil
 }
