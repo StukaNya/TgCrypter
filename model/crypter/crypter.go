@@ -48,7 +48,7 @@ func (c *Crypter) RegisterFile(ctx context.Context, userID uuid.UUID, fileName s
 	}
 	cipher.Encrypt(encryptFile.Data, rawData)
 
-	if err := c.cryptRepo.StoreEncryptData(ctx, &encryptFile); err != nil {
+	if _, err := c.cryptRepo.StoreEncryptData(ctx, &encryptFile); err != nil {
 		return fmt.Errorf("unable to store encrypt data: %v", err)
 	}
 
@@ -56,7 +56,8 @@ func (c *Crypter) RegisterFile(ctx context.Context, userID uuid.UUID, fileName s
 }
 
 type CryptoStorer interface {
-	StoreEncryptData(ctx context.Context, file *EncryptFile) error
+	StoreEncryptData(ctx context.Context, file *EncryptFile) (uuid.UUID, error)
+	FetchEncruptData(ctx context.Context, fileID uuid.UUID) (*EncryptFile, error)
 }
 
 type PinCodeFetcher interface {
