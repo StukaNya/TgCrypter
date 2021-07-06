@@ -6,6 +6,7 @@ import (
 	"fmt"
 
 	"github.com/StukaNya/TgCrypter/model/crypter"
+	uuid "github.com/satori/go.uuid"
 )
 
 var (
@@ -24,7 +25,7 @@ func NewCryptoStorage(db *sql.DB) *CryptoStorage {
 
 func (s *CryptoStorage) InitTable(ctx context.Context) error {
 	const query = `CREATE TABLE crypto (
-			id 			int 	PRIMARY KEY DEFAULT uuid_generate_v4(),
+			id 			uuid 	PRIMARY KEY DEFAULT uuid_generate_v4(),
 			user_id		uuid	NOT NULL REFERENCES user(id),
 			file_name 	text,
 			data		bytea,
@@ -38,7 +39,7 @@ func (s *CryptoStorage) InitTable(ctx context.Context) error {
 	return nil
 }
 
-func (s *CryptoStorage) FetchEncryptData(ctx context.Context, fileID int) (*crypter.EncryptFile, error) {
+func (s *CryptoStorage) FetchEncryptData(ctx context.Context, fileID uuid.UUID) (*crypter.EncryptedFile, error) {
 	const query = "SELECT file_name, user_id, data FROM crypto WHERE id =?"
 	row, err := s.db.QueryContext(ctx, query, fileID)
 	if err != nil {
@@ -46,7 +47,7 @@ func (s *CryptoStorage) FetchEncryptData(ctx context.Context, fileID int) (*cryp
 	}
 	defer row.Close()
 
-	file := new(crypter.EncryptFile)
+	file := new(crypter.EncryptedFile)
 	err = row.Scan(file.Name, file.UserID, file.Data)
 	if err != nil {
 		return nil, err
@@ -55,7 +56,11 @@ func (s *CryptoStorage) FetchEncryptData(ctx context.Context, fileID int) (*cryp
 	return file, nil
 }
 
-func (s *CryptoStorage) StoreEncryptData(ctx context.Context, file *crypter.EncryptFile) error {
+func (s *CryptoStorage) StoreEncryptData(ctx context.Context, file *crypter.EncryptedFile) error {
+	if file.ID == uuid.Nil {
+		file.ID = uuid.NewV4()
+	}
+
 	const query = "INSERT INTO crypto (user_id, file_name, data) VALUES ($1, $2)"
 	_, err := s.db.ExecContext(ctx, query, file.UserID, file.Name, file.Data)
 	if err != nil {
